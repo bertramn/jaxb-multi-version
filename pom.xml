@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.fleurida.jaxb</groupId>
+	<artifactId>jaxb-multi</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>Example JAXB compile multi version</name>
+	<description>An example to compile multiple version of JAXB.</description>
+
+	<properties>
+		<!-- unify the encoding for all the modules -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- core frameworks -->
+		<junit.version>4.11</junit.version>
+		<mockito.version>1.10.19</mockito.version>
+	</properties>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- compiler plugin -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<configuration>
+						<source>${maven.compile.source}</source>
+						<target>${maven.compile.target}</target>
+						<!-- patched jaxb -->
+						<compilerArguments>
+							<endorseddirs>${project.build.directory}/endorsed</endorseddirs>
+						</compilerArguments>
+						<!-- compiler debug -->
+						<debug>true</debug>
+						<debuglevel>lines,vars,source</debuglevel>
+						<optimize>true</optimize>
+					</configuration>
+				</plugin>
+				<!-- prepare the endorsed dir with jaxb api for compiler and tests -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>setup-endorsed</id>
+							<phase>validate</phase>
+							<goals>
+								<goal>copy</goal>
+							</goals>
+							<configuration>
+								<artifactItems>
+									<artifactItem>
+										<groupId>javax.xml.bind</groupId>
+										<artifactId>jaxb-api</artifactId>
+										<version>${jaxb.api.version}</version>
+									</artifactItem>
+								</artifactItems>
+								<outputDirectory>${project.build.directory}/endorsed</outputDirectory>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- surefire tsting -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.17</version>
+					<configuration>
+						<forkCount>1</forkCount>
+						<reuseForks>true</reuseForks>
+						<!-- FIXME disable the manifest jar as the classpath scanner cannot 
+							deal with it in the unit tests -->
+						<useManifestOnlyJar>false</useManifestOnlyJar>
+						<!-- patched jaxb -->
+						<systemProperties>
+							<property>
+								<name>java.endorsed.dirs</name>
+								<value>${project.build.directory}/endorsed</value>
+							</property>
+						</systemProperties>
+					</configuration>
+				</plugin>
+				<!-- make sure source folders are added to help out eclipse -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>1.9.1</version>
+					<executions>
+						<execution>
+							<id>add-xjc-sources</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>add-source</goal>
+							</goals>
+							<configuration>
+								<sources>
+									<source>${project.build.directory}/generated/xjc</source>
+								</sources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-dependency-plugin</artifactId>
+										<versionRange>[1.0,)</versionRange>
+										<goals>
+											<goal>copy</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>jdk-1.5</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<jdk>1.5</jdk>
+			</activation>
+			<properties>
+				<maven.compile.source>1.5</maven.compile.source>
+				<maven.compile.target>1.5</maven.compile.target>
+			</properties>
+		</profile>
+		<profile>
+			<id>jdk-1.6</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<jdk>1.6</jdk>
+			</activation>
+			<properties>
+				<maven.compile.source>1.6</maven.compile.source>
+				<maven.compile.target>1.6</maven.compile.target>
+			</properties>
+		</profile>
+		<profile>
+			<id>jdk-7</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<jdk>1.7</jdk>
+			</activation>
+			<properties>
+				<maven.compile.source>1.7</maven.compile.source>
+				<maven.compile.target>1.7</maven.compile.target>
+			</properties>
+		</profile>
+		<profile>
+			<id>jdk-8</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<jdk>1.8</jdk>
+			</activation>
+			<properties>
+				<!-- meeeh -->
+				<maven.compile.source>1.7</maven.compile.source>
+				<maven.compile.target>1.7</maven.compile.target>
+			</properties>
+		</profile>
+
+		<!-- JAXB 2.0 Bindings -->
+		<profile>
+			<id>jaxb20</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<jaxb.plugin.version>0.12.3</jaxb.plugin.version>
+				<jaxb.api.version>2.0</jaxb.api.version>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jvnet.jaxb2.maven2</groupId>
+						<artifactId>maven-jaxb20-plugin</artifactId>
+						<version>${jaxb.plugin.version}</version>
+						<executions>
+							<execution>
+								<id>generate-core-types</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<extension>true</extension>
+									<verbose>true</verbose>
+									<generateDirectory>${project.basedir}/target/generated/xjc</generateDirectory>
+									<schemaDirectory>${project.basedir}/src/main/resources</schemaDirectory>
+									<schemaIncludes>
+										<include>**/*.xsd</include>
+									</schemaIncludes>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- only needed for eclipse to stay calm -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+					</plugin>
+					<!-- prepare endcorsed dir used by compiler and during test execution -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- JAXB 2.1 Bindings -->
+		<profile>
+			<id>jaxb21</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<jaxb.plugin.version>0.12.3</jaxb.plugin.version>
+				<jaxb.api.version>2.1</jaxb.api.version>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jvnet.jaxb2.maven2</groupId>
+						<artifactId>maven-jaxb21-plugin</artifactId>
+						<version>${jaxb.plugin.version}</version>
+						<executions>
+							<execution>
+								<id>generate-core-types</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<extension>true</extension>
+									<verbose>true</verbose>
+									<generateDirectory>${project.basedir}/target/generated/xjc</generateDirectory>
+									<schemaDirectory>${project.basedir}/src/main/resources</schemaDirectory>
+									<schemaIncludes>
+										<include>**/*.xsd</include>
+									</schemaIncludes>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- only needed for eclipse to stay calm -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+					</plugin>
+					<!-- prepare endcorsed dir used by compiler and during test execution -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- JAXB 2.2 Bindings -->
+		<profile>
+			<id>jaxb22</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<jaxb.plugin.version>0.12.3</jaxb.plugin.version>
+				<jaxb.api.version>2.2</jaxb.api.version>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jvnet.jaxb2.maven2</groupId>
+						<artifactId>maven-jaxb22-plugin</artifactId>
+						<version>${jaxb.plugin.version}</version>
+						<executions>
+							<execution>
+								<id>generate-core-types</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<extension>true</extension>
+									<verbose>true</verbose>
+									<generateDirectory>${project.basedir}/target/generated/xjc</generateDirectory>
+									<schemaDirectory>${project.basedir}/src/main/resources</schemaDirectory>
+									<schemaIncludes>
+										<include>**/*.xsd</include>
+									</schemaIncludes>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- only needed for eclipse to stay calm -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+					</plugin>
+					<!-- prepare endcorsed dir used by compiler and during test execution -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>
