@@ -19,6 +19,12 @@
 	</properties>
 
 	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
 				<!-- compiler plugin -->
@@ -27,6 +33,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.1</version>
 					<configuration>
+						<verbose>true</verbose>
 						<source>${maven.compile.source}</source>
 						<target>${maven.compile.target}</target>
 						<!-- patched jaxb -->
@@ -189,7 +196,15 @@
 			<properties>
 				<jaxb.plugin.version>0.12.3</jaxb.plugin.version>
 				<jaxb.api.version>2.0</jaxb.api.version>
+				<jaxb.impl.version>2.0.5</jaxb.impl.version>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.sun.xml.bind</groupId>
+					<artifactId>jaxb-impl</artifactId>
+					<version>${jaxb.impl.version}</version>
+				</dependency>
+			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
@@ -237,7 +252,15 @@
 			<properties>
 				<jaxb.plugin.version>0.12.3</jaxb.plugin.version>
 				<jaxb.api.version>2.1</jaxb.api.version>
+				<jaxb.impl.version>2.1.13</jaxb.impl.version>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.sun.xml.bind</groupId>
+					<artifactId>jaxb-impl</artifactId>
+					<version>${jaxb.impl.version}</version>
+				</dependency>
+			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
@@ -285,7 +308,15 @@
 			<properties>
 				<jaxb.plugin.version>0.12.3</jaxb.plugin.version>
 				<jaxb.api.version>2.2</jaxb.api.version>
+				<jaxb.impl.version>2.2.11</jaxb.impl.version>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.glassfish.jaxb</groupId>
+					<artifactId>jaxb-runtime</artifactId>
+					<version>${jaxb.impl.version}</version>
+				</dependency>
+			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
